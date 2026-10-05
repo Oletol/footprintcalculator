@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Land on Your Plate · Cherdak</title>
+<meta name="description" content="Ex 1.9 — How much land is on your plate? A farmland footprint calculator by Cherdak.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3CradialGradient id='b' cx='50%25' cy='45%25' r='70%25'%3E%3Cstop offset='0' stop-color='%2327477A'/%3E%3Cstop offset='1' stop-color='%2314284A'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='112' fill='url(%23b)'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='26' stroke-linecap='round' stroke-linejoin='round' transform='translate(256 262) scale(0.4) translate(-597 -540)'%3E%3Cpath d='M150 432 L597 138 L1044 432'/%3E%3Cpath d='M232 380 V918 a26 26 0 0 0 26 26 H934 a26 26 0 0 0 26 -26 V380'/%3E%3Cpath d='M246 470 q20 -8 30 -30 q18 -45 50 -45 H492 q22 0 34 22 l18 32 q12 22 34 22 H932 q14 0 14 14'/%3E%3Cpath d='M276 905 H915'/%3E%3Cpath d='M484 585 L690 656 L640 690 L710 770 L675 805 L605 728 L556 792 Z'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Literata:opsz,wght@7..72,600;7..72,700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* Cherdak — shared tokens (navy brand, Onest / Literata / JetBrains Mono) */
+:root {
+  color-scheme: light;
+  --navy-950: #0c1a33;
+  --navy-900: #112343;
+  --navy-800: #16305a;
+  --navy-700: #20406f;
+  --navy-500: #3d6199;
+  --navy-100: #e6ecf5;
+
+  --paper: #f3f5f9;
+  --card: #ffffff;
+  --ink: #15223a;
+  --muted: #5a6780;
+  --line: #dbe1eb;
+  --accent: #3d6199;
+  --accent-ink: #ffffff;
+  --soft: #e6ecf5;
+  --head: #f6f8fb;
+  --field: #ffffff;
+
+  --land: #1f8a70;
+  --land-soft: #a9d6c8;
+  --good: #1f8a70;
+  --good-bg: #e3f4ee;
+
+  --ui: "Onest", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  --read: "Literata", Georgia, "Times New Roman", serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  --radius-lg: 20px;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0b1528; --card: #12203a; --ink: #e7ecf5; --muted: #9aa8c0;
+    --line: #23365a; --accent: #7fa6e0; --accent-ink: #0b1528; --soft: #1a2c4d;
+    --head: #16274a; --field: #0f1c33;
+    --land: #5fd1ae; --land-soft: #2a5a4e; --good: #5fd1ae; --good-bg: #123a33;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0b1528; --card: #12203a; --ink: #e7ecf5; --muted: #9aa8c0;
+  --line: #23365a; --accent: #7fa6e0; --accent-ink: #0b1528; --soft: #1a2c4d;
+  --head: #16274a; --field: #0f1c33;
+  --land: #5fd1ae; --land-soft: #2a5a4e; --good: #5fd1ae; --good-bg: #123a33;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0; font-family: var(--ui); font-size: 16px; line-height: 1.55;
+  color: var(--ink); background: var(--paper);
+  padding: clamp(16px, 4vw, 40px) 16px;
+}
+h1, h2, h3 { margin: 0; line-height: 1.2; text-wrap: balance; }
+p { margin: 0; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+.ex {
+  max-width: 1200px; margin: 0 auto;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg);
+  padding: clamp(20px, 4vw, 40px);
+  box-shadow: 0 20px 40px -24px rgba(12, 26, 51, 0.35);
+}
+
+/* ---------- head ---------- */
+.ex-title { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; }
+.ex-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px 6px 8px; border-radius: 999px;
+  background: radial-gradient(120% 160% at 50% 0%, #27477a 0%, var(--navy-900) 70%);
+  color: #fff; font: 600 14px/1 var(--mono); letter-spacing: .02em; white-space: nowrap;
+}
+.ex-tag svg { width: 18px; height: 18px; }
+.ex-title h1 { font-size: clamp(22px, 3vw, 30px); font-weight: 700; letter-spacing: -0.01em; }
+.ex-lead { margin-top: 14px; max-width: 72ch; font-size: 17px; color: var(--muted); }
+
+.grid {
+  display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 28px; margin-top: 28px; align-items: start;
+}
+
+/* ---------- table ---------- */
+.tbl-wrap { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  background: var(--head); color: var(--muted);
+  font: 600 12px/1.35 var(--ui); letter-spacing: .08em; text-transform: uppercase;
+  text-align: left; padding: 14px 12px; border-bottom: 1px solid var(--line); vertical-align: bottom;
+}
+thead th.num { text-align: right; }
+tbody td { padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) { background: color-mix(in srgb, var(--head) 60%, transparent); }
+tbody tr.zero .food, tbody tr.zero .m2 { color: var(--muted); }
+.food { font-weight: 500; }
+.portion { color: var(--muted); font-size: 14px; }
+.m2 { text-align: right; font: 500 15px var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.qty { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; background: var(--field); }
+.qty button {
+  width: 30px; height: 34px; border: 0; background: transparent; color: var(--muted);
+  font: 600 18px/1 var(--ui); cursor: pointer; border-radius: 999px;
+}
+.qty button:hover { color: var(--accent); }
+.qty input {
+  width: 38px; height: 34px; border: 0; background: transparent; color: var(--ink);
+  text-align: center; font: 600 15px var(--mono); -moz-appearance: textfield;
+}
+.qty input::-webkit-outer-spin-button, .qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.qty:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+.qty input:focus-visible { outline: none; }
+
+/* ---------- result panel ---------- */
+.panel {
+  position: sticky; top: 16px;
+  border-radius: var(--radius-lg); overflow: hidden;
+  border: 1px solid var(--line); background: var(--card);
+}
+.panel-top {
+  color: #fff; padding: 24px 24px 22px;
+  background: radial-gradient(120% 140% at 50% 0%, #27477a 0%, var(--navy-900) 60%, var(--navy-950) 100%);
+}
+.big { font: 700 clamp(48px, 6vw, 68px)/1 var(--read); letter-spacing: -0.02em; font-variant-numeric: lining-nums tabular-nums; }
+.big-unit { margin-top: 8px; color: rgba(255,255,255,.75); font-weight: 500; }
+.delta {
+  display: inline-flex; margin-top: 12px; padding: 4px 12px; border-radius: 999px;
+  background: rgba(95, 209, 174, .18); color: #9ee6cf; font: 600 14px var(--ui);
+}
+.panel-body { padding: 8px 24px 24px; }
+
+.cmp { list-style: none; margin: 0; padding: 0; }
+.cmp li {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+  padding: 12px 0; border-bottom: 1px dashed var(--line);
+}
+.cmp li span:first-child { color: var(--ink); }
+.cmp li small { color: var(--muted); font-size: 14px; }
+.cmp b { font: 600 16px var(--mono); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.waffle { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
+.waffle i { width: 14px; height: 14px; border-radius: 3px; background: var(--land); display: block; }
+.waffle i.part { background: var(--land-soft); }
+.waffle-note { margin-top: 8px; color: var(--muted); font-size: 14px; }
+
+.label {
+  margin-top: 24px; margin-bottom: 10px;
+  color: var(--muted); font: 600 12px var(--ui); letter-spacing: .08em; text-transform: uppercase;
+}
+.bars { display: grid; grid-template-columns: auto 1fr auto; gap: 10px 14px; align-items: center; }
+.bars .n { font-size: 15px; }
+.bars .t { height: 10px; border-radius: 99px; background: var(--soft); overflow: hidden; }
+.bars .t span { display: block; height: 100%; border-radius: inherit; background: var(--navy-700); transition: width .3s ease; }
+:root[data-theme="dark"] .bars .t span { background: var(--accent); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .bars .t span { background: var(--accent); } }
+.bars .p { font: 500 14px var(--mono); color: var(--muted); text-align: right; min-width: 4ch; }
+.empty { color: var(--muted); font-size: 15px; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 10px 20px; border-radius: 999px; border: 1.5px solid transparent;
+  font: 600 15px/1.2 var(--ui); cursor: pointer; transition: background-color .15s, color .15s, border-color .15s;
+}
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn-ghost:hover { border-color: var(--accent); }
+.btn[aria-pressed="true"] { background: var(--good-bg); color: var(--good); border-color: var(--good); }
+
+.source { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; max-width: 100ch; }
+.source a { color: var(--accent); }
+
+.brandline { max-width: 1200px; margin: 16px auto 0; display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 13px; }
+.brandline a { color: inherit; }
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns: 1fr; }
+  .panel { position: static; }
+}
+@media (max-width: 560px) {
+  .ex { padding: 18px 14px; }
+  thead th.ph, td.portion { display: none; }
+  .food small { display: block; color: var(--muted); font-weight: 400; font-size: 13px; }
+  thead th, tbody td { padding-left: 8px; padding-right: 8px; }
+  .panel-top, .panel-body { padding-left: 18px; padding-right: 18px; }
+}
+@media (min-width: 561px) { .food small { display: none; } }
+</style>
+</head>
+<body>
+
+<main class="ex">
+  <div class="ex-title">
+    <span class="ex-tag">
+      <svg viewBox="120 110 954 862" fill="none" stroke="currentColor" stroke-width="56" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M150 432 L597 138 L1044 432"/><path d="M232 380 V918 a26 26 0 0 0 26 26 H934 a26 26 0 0 0 26 -26 V380"/><path d="M484 585 L690 656 L640 690 L710 770 L675 805 L605 728 L556 792 Z"/></svg>
+      Ex 1.9
+    </span>
+    <h1>How much land is on your plate?</h1>
+  </div>
+  <p class="ex-lead">Every meal occupies land somewhere: a field, a pasture, a plantation. Enter how many portions of each food you eat in a typical week. The calculator turns your week into square metres of farmland per year and compares it with things you can picture.</p>
+
+  <div class="grid">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Food</th>
+            <th scope="col" class="ph">One portion</th>
+            <th scope="col">Portions a week</th>
+            <th scope="col" class="num">m² a year</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+
+    <aside class="panel" aria-live="polite">
+      <div class="panel-top">
+        <div class="big" id="total">0</div>
+        <div class="big-unit">m² of farmland a year</div>
+        <div class="delta" id="delta" hidden></div>
+      </div>
+      <div class="panel-body">
+        <ul class="cmp" id="cmp"></ul>
+
+        <div class="waffle" id="waffle" aria-hidden="true"></div>
+        <p class="waffle-note" id="waffleNote">each square = 100 m²</p>
+
+        <p class="label">Where your land goes</p>
+        <div class="bars" id="bars"></div>
+
+        <div class="actions">
+          <button type="button" class="btn btn-ghost" id="noMeat" aria-pressed="false">What if I ate no meat?</button>
+          <button type="button" class="btn btn-ghost" id="back">Back to my week</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <p class="source">Figures: global average land use per kilogram of food, Poore &amp; Nemecek (2018), via <a href="https://ourworldindata.org/environmental-impacts-of-food" target="_blank" rel="noopener">Our World in Data</a>. Averages hide huge differences: beef from a feedlot and beef from a mountain pasture use land very differently.</p>
+</main>
+
+<div class="brandline"><span>Cherdak · <a href="https://t.me/engattic" target="_blank" rel="noopener">@engattic</a></span></div>
+
+<script>
+// land use, m² per kg (per litre for milk) — Poore & Nemecek (2018), OWID global means
+const FOODS = [
+  { id: 'beef',    name: 'Beef',                 portion: '150 g',              kg: 0.15,  m2kg: 326.21, meat: true, def: 2 },
+  { id: 'lamb',    name: 'Lamb or mutton',       portion: '150 g',              kg: 0.15,  m2kg: 369.81, meat: true, def: 0 },
+  { id: 'pork',    name: 'Pork',                 portion: '150 g',              kg: 0.15,  m2kg: 17.36,  meat: true, def: 2 },
+  { id: 'chicken', name: 'Chicken',              portion: '150 g',              kg: 0.15,  m2kg: 12.22,  meat: true, def: 3 },
+  { id: 'fish',    name: 'Farmed fish',          portion: '150 g',              kg: 0.15,  m2kg: 8.41,   meat: true, def: 1 },
+  { id: 'cheese',  name: 'Cheese',               portion: '30 g',               kg: 0.03,  m2kg: 87.79,  def: 5 },
+  { id: 'milk',    name: 'Milk, kefir',          portion: 'a glass, 250 ml',    kg: 0.25,  m2kg: 8.95,   def: 7 },
+  { id: 'eggs',    name: 'Eggs',                 portion: 'two eggs',           kg: 0.12,  m2kg: 6.27,   def: 3 },
+  { id: 'bread',   name: 'Bread, pasta',         portion: '100 g',              kg: 0.10,  m2kg: 3.85,   def: 10 },
+  { id: 'oats',    name: 'Buckwheat, oats',      portion: '75 g',               kg: 0.075, m2kg: 7.60,   def: 3 },
+  { id: 'rice',    name: 'Rice',                 portion: '75 g',               kg: 0.075, m2kg: 2.80,   def: 2 },
+  { id: 'potato',  name: 'Potatoes',             portion: '200 g',              kg: 0.20,  m2kg: 0.88,   def: 4 },
+  { id: 'veg',     name: 'Vegetables',           portion: '200 g',              kg: 0.20,  m2kg: 0.38,   def: 7 },
+  { id: 'fruit',   name: 'Fruit',                portion: 'one apple, 150 g',   kg: 0.15,  m2kg: 0.63,   def: 7 },
+  { id: 'beans',   name: 'Beans, peas, lentils', portion: '100 g',              kg: 0.10,  m2kg: 15.57,  def: 1 },
+  { id: 'tofu',    name: 'Tofu, soy milk',       portion: '100 g',              kg: 0.10,  m2kg: 2.20,   def: 0 },
+  { id: 'nuts',    name: 'Nuts',                 portion: '30 g',               kg: 0.03,  m2kg: 12.96,  def: 1 },
+  { id: 'coffee',  name: 'Coffee',               portion: 'a cup, 10 g beans',  kg: 0.01,  m2kg: 21.62,  def: 10 },
+  { id: 'choc',    name: 'Chocolate',            portion: '25 g',               kg: 0.025, m2kg: 68.96,  def: 2 },
+];
+
+const WEEKS = 52;
+const COMPARE = [
+  { label: 'tennis courts', size: 261 },
+  { label: 'dacha plots of six sotki', size: 600 },
+  { label: 'football pitches', size: 7140 },
+];
+const WORLD_PER_PERSON = 5900;     // ~48 million km² of farmland / ~8.1 bn people
+const RU_PEOPLE = 146e6;
+const RU_AREA_KM2 = 17.1e6;
+const WAFFLE_MAX = 300;            // squares shown before the grid is capped
+
+const state = Object.fromEntries(FOODS.map(f => [f.id, f.def]));
+let saved = null;                  // the user's own week while the no-meat scenario is on
+
+const fmtInt = n => Math.round(n).toLocaleString('en-US').replace(/,/g, ' ');
+const fmtSig = n => n >= 100 ? fmtInt(n) : n >= 10 ? n.toFixed(1) : n.toFixed(2);
+const yearly = f => state[f.id] * f.kg * WEEKS * f.m2kg;
+
+// ---------- build rows ----------
+const tbody = document.getElementById('rows');
+FOODS.forEach(f => {
+  const tr = document.createElement('tr');
+  tr.dataset.id = f.id;
+  tr.innerHTML = `
+    <td class="food"><label for="q-${f.id}">${f.name}</label><small>${f.portion}</small></td>
+    <td class="portion">${f.portion}</td>
+    <td>
+      <span class="qty">
+        <button type="button" data-step="-1" aria-label="One portion less of ${f.name}">−</button>
+        <input id="q-${f.id}" type="number" inputmode="numeric" min="0" max="99" step="1" value="${state[f.id]}">
+        <button type="button" data-step="1" aria-label="One portion more of ${f.name}">+</button>
+      </span>
+    </td>
+    <td class="m2" data-m2></td>`;
+  tbody.appendChild(tr);
+});
+
+tbody.addEventListener('input', e => {
+  if (e.target.tagName !== 'INPUT') return;
+  const id = e.target.closest('tr').dataset.id;
+  const v = Math.max(0, Math.min(99, Math.round(Number(e.target.value) || 0)));
+  state[id] = v;
+  render();
+});
+tbody.addEventListener('change', e => { if (e.target.tagName === 'INPUT') syncInputs(); });
+tbody.addEventListener('click', e => {
+  const b = e.target.closest('button[data-step]');
+  if (!b) return;
+  const id = b.closest('tr').dataset.id;
+  state[id] = Math.max(0, Math.min(99, state[id] + Number(b.dataset.step)));
+  syncInputs(); render();
+});
+
+function syncInputs() {
+  FOODS.forEach(f => { document.getElementById('q-' + f.id).value = state[f.id]; });
+}
+
+// ---------- scenario buttons ----------
+const noMeatBtn = document.getElementById('noMeat');
+noMeatBtn.addEventListener('click', () => {
+  if (!saved) saved = { ...state };
+  FOODS.forEach(f => { if (f.meat) state[f.id] = 0; });
+  noMeatBtn.setAttribute('aria-pressed', 'true');
+  syncInputs(); render();
+});
+document.getElementById('back').addEventListener('click', () => {
+  if (saved) Object.assign(state, saved);
+  saved = null;
+  noMeatBtn.setAttribute('aria-pressed', 'false');
+  syncInputs(); render();
+});
+
+function savedTotal() {
+  return FOODS.reduce((s, f) => s + saved[f.id] * f.kg * WEEKS * f.m2kg, 0);
+}
+
+// ---------- render ----------
+function render() {
+  let total = 0;
+  const parts = FOODS.map(f => {
+    const v = yearly(f);
+    total += v;
+    const tr = tbody.querySelector(`tr[data-id="${f.id}"]`);
+    tr.querySelector('[data-m2]').textContent = fmtInt(v);
+    tr.classList.toggle('zero', state[f.id] === 0);
+    return { name: f.name, v };
+  });
+
+  document.getElementById('total').textContent = fmtInt(total);
+
+  const delta = document.getElementById('delta');
+  if (saved) {
+    const was = savedTotal();
+    const diff = was - total;
+    delta.hidden = false;
+    delta.textContent = diff > 0
+      ? `−${fmtInt(diff)} m² (−${Math.round(diff / was * 100)}%) compared with your week`
+      : 'the same as your week';
+  } else delta.hidden = true;
+
+  // comparisons
+  const ru = total * RU_PEOPLE / 1e6;               // km²
+  const ruText = ru >= 1e6 ? `${(ru / 1e6).toFixed(1)} million km²` : `${fmtInt(ru / 1000)} thousand km²`;
+  const ruShare = ru / RU_AREA_KM2 * 100;
+  const rows = COMPARE.map(c => [`${c.label} <small>(${fmtInt(c.size)} m²)</small>`, fmtSig(total / c.size)]);
+  rows.push([`world farmland per person <small>(about ${fmtInt(WORLD_PER_PERSON)} m²)</small>`, `${Math.round(total / WORLD_PER_PERSON * 100)}%`]);
+  rows.push([`if 146 million people ate like you`, ruText]);
+  rows.push([`… as a share of Russia’s whole territory <small>(17.1 million km²)</small>`, `${ruShare < 1 ? ruShare.toFixed(1) : Math.round(ruShare)}%`]);
+  document.getElementById('cmp').innerHTML = rows.map(([a, b]) => `<li><span>${a}</span><b>${b}</b></li>`).join('');
+
+  // waffle
+  const squares = total / 100;
+  const full = Math.floor(squares);
+  const shown = Math.min(full, WAFFLE_MAX);
+  let html = '<i></i>'.repeat(shown);
+  if (full < WAFFLE_MAX && squares - full >= 0.05) html += '<i class="part"></i>';
+  document.getElementById('waffle').innerHTML = html;
+  document.getElementById('waffleNote').textContent = full > WAFFLE_MAX
+    ? `each square = 100 m² · showing the first ${WAFFLE_MAX} of ${fmtInt(squares)}`
+    : 'each square = 100 m²';
+
+  // breakdown
+  const bars = document.getElementById('bars');
+  const top = parts.filter(p => p.v > 0).sort((a, b) => b.v - a.v).slice(0, 6);
+  if (!top.length) { bars.innerHTML = '<p class="empty" style="grid-column:1/-1">Add a few portions to see the breakdown.</p>'; return; }
+  bars.innerHTML = top.map(p => {
+    const pct = p.v / total * 100;
+    return `<span class="n">${p.name}</span><span class="t"><span style="width:${pct.toFixed(1)}%"></span></span><span class="p">${pct < 1 ? '<1' : Math.round(pct)}%</span>`;
+  }).join('');
+}
+
+render();
+</script>
+</body>
+</html>
